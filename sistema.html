@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Delícias da Kah - Gestão Profissional</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary: #d4af37;    /* Dourado */
+            --secondary: #f48fb1;  /* Rosa Médio */
+            --bg-light: #fff9f9;   /* Fundo Rosado claro */
+            --sidebar-w: 260px;
+            --text-dark: #5d4037;  /* Marrom Café */
+            --border-color: #fce4ec;
+        }
+
+        body { margin: 0; font-family: 'Poppins', sans-serif; display: flex; height: 100vh; background: var(--bg-light); color: var(--text-dark); overflow: hidden; }
+
+        /* --- Sidebar Responsiva --- */
+        aside { 
+            width: var(--sidebar-w); 
+            background: #fff; 
+            border-right: 1px solid var(--border-color); 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 1000; 
+            transition: all 0.3s ease;
+        }
+
+        .user-header { background: linear-gradient(135deg, #f48fb1, #d4af37); color: white; padding: 25px 15px; text-align: center; }
+        .user-header h3 { margin: 0; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; font-family: 'Playfair Display', serif; }
+        
+        nav { flex: 1; padding: 15px 0; overflow-y: auto; }
+        .nav-section-title { font-size: 10px; text-transform: uppercase; color: #bcaaa4; padding: 15px 25px 5px; font-weight: bold; }
+        .nav-link { display: flex; align-items: center; padding: 12px 25px; text-decoration: none; color: var(--text-dark); font-size: 14px; cursor: pointer; transition: 0.2s; border-left: 4px solid transparent; }
+        .nav-link i:first-child { width: 30px; color: var(--primary); font-size: 16px; }
+        .nav-link:hover, .nav-link.active { background: #fff0f5; color: var(--secondary); border-left-color: var(--primary); }
+        .submenu { background: #fffcfc; display: none; }
+        .submenu.show { display: block; }
+        .sub-link { display: flex; align-items: center; padding: 10px 20px 10px 55px; font-size: 13px; text-decoration: none; color: #795548; cursor: pointer; }
+
+        /* --- Main Area --- */
+        main { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; width: 100%; }
+        header { background: #fff; height: 65px; display: flex; align-items: center; padding: 0 15px; border-bottom: 2px solid var(--border-color); justify-content: space-between; gap: 10px; }
+        header h2 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--secondary); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn-menu { display: none; background: none; border: none; font-size: 20px; color: var(--secondary); cursor: pointer; }
+        .content { flex: 1; overflow-y: auto; padding: 15px; }
+
+        /* --- Listagem --- */
+        .os-card { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .os-card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(244, 143, 177, 0.1); }
+        .os-badge { background: var(--primary); color: white; padding: 5px 10px; border-radius: 20px; font-weight: bold; margin-right: 15px; font-size: 11px; }
+        .os-details { flex: 1; min-width: 0; }
+        .os-details b { font-size: 14px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-dark); }
+        .os-details span { color: #a1887f; font-size: 12px; display: block; margin-top: 2px;}
+
+        /* Pagamento */
+        .paid-check-area { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-left: 10px; padding-left: 15px; border-left: 1px solid #fce4ec; }
+        .paid-check-area input { accent-color: var(--secondary); width: 18px; height: 18px; cursor: pointer; }
+        .paid-check-area label { font-size: 9px; font-weight: bold; color: #d81b60; }
+
+        /* --- Modais --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(93, 64, 55, 0.4); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 10px; box-sizing: border-box; }
+        .modal-box { background: white; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
+        .modal-header { background: var(--secondary); color: white; padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; border-radius: 20px 20px 0 0; }
+        .modal-body { padding: 20px; }
+
+        /* --- Grids --- */
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .os-builder-top { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
+        .btn-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 10px; }
+        .form-group label { font-size: 12px; margin-bottom: 5px; color: #8d6e63; font-weight: 600; }
+        .form-group input, .form-group textarea { padding: 12px; border: 1px solid #fce4ec; border-radius: 10px; font-family: inherit; box-sizing: border-box; width: 100%; background: #fffafa; transition: 0.3s; }
+        .form-group input:focus { border-color: var(--primary); outline: none; }
+
+        @media (min-width: 768px) {
+            .form-grid { grid-template-columns: 1fr 1fr; }
+            .os-builder-top { grid-template-columns: 1fr 1fr; }
+            .btn-action-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+        }
+
+        /* --- Tabelas Responsivas --- */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .os-table { width: 100%; border-collapse: collapse; min-width: 100%; margin-top: 10px; }
+        .os-table th { background: #fff5f7; color: var(--secondary); text-align: left; padding: 10px; border: 1px solid #fce4ec; font-size: 11px; text-transform: uppercase; }
+        .os-table td { padding: 10px; border: 1px solid #fce4ec; font-size: 12px; vertical-align: middle; }
+
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--secondary), #ec407a); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; border: none; cursor: pointer; box-shadow: 0 8px 20px rgba(244, 143, 177, 0.4); z-index: 500; transition: 0.3s; }
+        .fab:hover { transform: scale(1.1) rotate(90deg); }
+
+        /* --- Mobile Styles --- */
+        @media (max-width: 768px) {
+            aside { position: fixed; left: -100%; height: 100%; }
+            aside.open { left: 0; }
+            .btn-menu { display: block; }
+            .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
+            .sidebar-overlay.show { display: block; }
+            .os-table th, .os-table td { padding: 8px 4px; font-size: 11px; }
+            .estoque-input-qtd { width: 50px !important; padding: 4px !important; }
+        }
+
+        @media print {
+            @page { size: A4; margin: 1cm; }
+            aside, .fab, header, .modal-overlay, #header-btns button:not(.btn-print), .btn-menu { display: none !important; }
+            body { background: white !important; overflow: visible; }
+            main { display: block; width: 100%; }
+            .content { padding: 0; overflow: visible; }
+            .os-view-container { border: none !important; width: 100% !important; padding: 0 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sb-overlay" onclick="window.toggleSidebar()"></div>
+    <aside id="sidebar">
+        <div class="user-header"><h3>DELÍCIAS DA KAH</h3></div>
+        <nav>
+            <div class="nav-section-title">Administração</div>
+            <a class="nav-link" onclick="setPage('Empresa')"><i class="fa-solid fa-cookie-bite"></i> Minha Empresa</a>
+            <a class="nav-link" onclick="setPage('Usuários')"><i class="fa-solid fa-user-heart"></i> Usuários</a>
+            <div class="nav-section-title">Operacional</div>
+            <a class="nav-link" onclick="setPage('Estoque')"><i class="fa-solid fa-boxes-packing"></i> Estoque</a>
+            <a class="nav-link" onclick="setPage('Recibos')"><i class="fa-solid fa-file-invoice"></i> Recibos</a> <a class="nav-link active" id="link-os" onclick="setPage('Ordens de Serviços')"><i class="fa-solid fa-receipt"></i> Encomendas</a>
+            <div class="nav-link" onclick="toggleSub('sub-prod')"><i class="fa-solid fa-cake-candles"></i> Itens <i class="fa-solid fa-chevron-down" style="margin-left:auto"></i></div>
+            <div class="submenu" id="sub-prod"><a class="sub-link" onclick="setPage('Produtos')">Produtos</a><a class="sub-link" onclick="setPage('Serviços')">Serviços</a></div>
+            <div class="nav-link" onclick="toggleSub('sub-cli')"><i class="fa-solid fa-heart"></i> Contatos <i class="fa-solid fa-chevron-down" style="margin-left:auto"></i></div>
+            <div class="submenu" id="sub-cli"><a class="sub-link" onclick="setPage('Clientes')">Clientes</a><a class="sub-link" onclick="setPage('Fornecedores')">Fornecedores</a></div>
+        </nav>
+    </aside>
+
+    <main>
+        <header>
+            <button class="btn-menu" onclick="window.toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+            <h2 id="title">Encomendas</h2>
+            <div id="header-btns" style="display:flex; align-items:center"></div>
+        </header>
+        <div class="content" id="main-content"></div>
+        <button class="fab" onclick="handleFab()"><i class="fa-solid fa-plus"></i></button>
+    </main>
+
+    <div class="modal-overlay" id="modal-generic"><div class="modal-box"><div class="modal-header"><h3 id="modal-title">Cadastro</h3><button onclick="closeModal()" style="background:none;border:none;color:white;font-size:24px;">&times;</button></div><div class="modal-body" id="modal-body-content"></div></div></div>
+    <div class="modal-overlay" id="modal-search"><div class="modal-box"><div class="modal-header"><h3>Selecionar</h3><button onclick="closeModal()" style="background:none;border:none;color:white;font-size:24px;">&times;</button></div><div style="padding:10px;"><input type="text" id="m-input" placeholder="Pesquisar..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px; box-sizing: border-box;"></div><div id="m-list" style="max-height:60vh; overflow-y:auto;"></div></div></div>
+    <div class="modal-overlay" id="modal-qty"><div class="modal-box"><div class="modal-header"><h3>Ajustar Item</h3><button onclick="closeModal()" style="background:none;border:none;color:white;font-size:24px;">&times;</button></div><div class="modal-body"><h4 id="q-nome-item" style="color:var(--secondary); margin:0 0 15px 0"></h4><div class="form-group"><label>Quantidade</label><input type="number" id="q-val" value="1" min="1"></div><div class="form-group"><label>Preço Unitário (R$)</label><input type="number" id="p-val" step="0.01"></div><button onclick="confirmItem()" style="width:100%; background:var(--primary); color:white; border:none; padding:15px; font-weight:bold; border-radius:10px; margin-top:10px; cursor: pointer;">ADICIONAR</button></div></div></div>
+    <div class="modal-overlay" id="modal-discount"><div class="modal-box"><div class="modal-header"><h3>Aplicar Desconto</h3><button onclick="closeModal()" style="background:none;border:none;color:white;font-size:24px;">&times;</button></div><div class="modal-body"><div class="form-group"><label>Valor (R$)</label><input type="number" id="d-val" step="0.01" value="0"></div><button onclick="applyDiscount()" style="width:100%; background:var(--secondary); color:white; border:none; padding:15px; font-weight:bold; border-radius:10px; cursor: pointer;">APLICAR</button></div></div></div>
+    <div class="modal-overlay" id="modal-work"><div class="modal-box"><div class="modal-header"><h3>Trabalho Avulso</h3><button onclick="closeModal()" style="background:none;border:none;color:white;font-size:24px;">&times;</button></div><div class="modal-body"><div class="form-group"><label>Descrição</label><input type="text" id="w-desc"></div><div class="form-group"><label>Valor (R$)</label><input type="number" id="w-val" step="0.01"></div><button onclick="addManualWork()" style="width:100%; background:var(--primary); color:white; border:none; padding:15px; font-weight:bold; border-radius:10px; cursor: pointer;">ADICIONAR</button></div></div></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs, doc, getDoc, updateDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAEZx9VHKkYmUFfPILDw5PdoiJyH-O_Uf8",
+            authDomain: "bando-da-kah.firebaseapp.com",
+            projectId: "bando-da-kah",
+            storageBucket: "bando-da-kah.firebasestorage.app",
+            messagingSenderId: "25821048759",
+            appId: "1:25821048759:web:6e55ca0c65245c92400232",
+            measurementId: "G-MVTQ05YCD4"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentPg = "Ordens de Serviços", unsub = null, tempItem = null, editingId = null, configEmpresa = {};
+        let osDraft = { cliente: null, fornecedor: 'DELÍCIAS DA KAH', itens: [], total: 0, desconto: 0 };
+        let estoqueDraft = { itens: [], dataSimples: '' };
+        
+        const paths = { 
+            'Clientes': 'clientes', 'Fornecedores': 'fornecedores', 
+            'Produtos': 'produtos', 'Serviços': 'servicos', 
+            'Ordens de Serviços': 'ordens_servicos', 'Usuários': 'usuarios',
+            'Estoque': 'estoques', 'Recibos': 'recibos' 
+        };
+
+        window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sb-overlay').classList.toggle('show'); };
+        window.closeModal = () => document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+        window.toggleSub = (id) => document.getElementById(id).classList.toggle('show');
+
+        window.setPage = (name) => {
+            currentPg = name; 
+            document.getElementById('title').innerText = name === 'Ordens de Serviços' ? 'Encomendas' : name;
+            
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            if(window.innerWidth <= 768) window.toggleSidebar();
+            
+            document.getElementById('header-btns').innerHTML = '';
+
+            if(name === 'Empresa') { renderCompanyForm(); return; }
+            if(unsub) unsub();
+
+            unsub = onSnapshot(query(collection(db, paths[name]), orderBy("criadoEm", "desc")), (snap) => {
+                const content = document.getElementById('main-content'); content.innerHTML = "";
+                snap.forEach(d => {
+                    const data = d.data(), card = document.createElement('div'); card.className = 'os-card';
+                    
+                    if(name === 'Ordens de Serviços') {
+                        const isPaid = data.pago || false; if(isPaid) card.classList.add('paid-os');
+                        card.onclick = () => viewOSDetail(d.id);
+                        card.innerHTML = `<div class="os-badge">${data.numero}</div><div class="os-details"><b>${data.cliente}</b><span>${data.dataSimples} - R$ ${data.total.toFixed(2)}</span></div><div class="paid-check-area" onclick="event.stopPropagation()"><input type="checkbox" ${isPaid?'checked':''} onchange="window.togglePaidStatus('${d.id}',this.checked)"><label>${isPaid?'PAGO':'PENDENTE'}</label></div>`;
+                    } else if(name === 'Usuários') {
+                        const uDisp = data.username || data.nome || "Admin";
+                        card.innerHTML = `<div class="os-details"><b><i class="fa-solid fa-user"></i> ${uDisp}</b></div><div style="display:flex;gap:15px"><i class="fa-solid fa-pen" style="color:var(--primary); cursor:pointer;" onclick="window.editUserModal('${d.id}','${uDisp}')"></i><i class="fa-solid fa-trash" style="color:red; cursor:pointer;" onclick="deleteDocGeneric('usuarios','${d.id}')"></i></div>`;
+                    } else if (name === 'Estoque') {
+                        card.onclick = () => window.viewEstoque(d.id);
+                        card.innerHTML = `<div class="os-badge" style="background:var(--secondary)"><i class="fa-solid fa-calendar"></i></div><div class="os-details"><b>Controle de Estoque</b><span>Data: ${data.dataSimples} | Total de Itens: ${data.itens.length}</span></div><div style="display:flex;gap:15px"><i class="fa-solid fa-trash" style="color:red; cursor:pointer;" onclick="event.stopPropagation(); window.deleteDocGeneric('estoques','${d.id}')"></i></div>`;
+                    } else {
+                        card.innerHTML = `<div class="os-details"><b>${data.nome || data.descricao}</b></div><div style="display:flex;gap:15px"><i class="fa-solid fa-pen" style="color:var(--primary); cursor:pointer;" onclick="editGeneric('${paths[name]}','${d.id}')"></i><i class="fa-solid fa-trash" style="color:red; cursor:pointer;" onclick="deleteDocGeneric('${paths[name]}','${d.id}')"></i></div>`;
+                    }
+                    content.appendChild(card);
+                });
+            });
+        };
+
+        window.togglePaidStatus = async (id, status) => { await updateDoc(doc(db, "ordens_servicos", id), { pago: status }); };
+
+        // --- EMPRESA ---
+        async function loadConfig() { const d = await getDoc(doc(db, "config", "empresa")); if(d.exists()) configEmpresa = d.data(); }
+        loadConfig();
+        function renderCompanyForm() {
+            document.getElementById('main-content').innerHTML = `<div style="padding:15px; background:#fff; border-radius:15px; border:1px solid var(--border-color);"><div class="form-grid"><div class="form-group full"><label>Logo</label><input type="file" onchange="previewLogo(this)"><img id="logo-preview" src="${configEmpresa.logo || ''}" style="width:80px;margin-top:10px;"></div><div class="form-group"><label>Nome</label><input type="text" id="comp-nome" value="${configEmpresa.nome || ''}"></div><div class="form-group"><label>CNPJ</label><input type="text" id="comp-cnpj" value="${configEmpresa.cnpj || ''}"></div><div class="form-group"><label>Telefone</label><input type="text" id="comp-tel" value="${configEmpresa.telefone || ''}"></div><div class="form-group"><label>Site / Redes</label><input type="text" id="comp-site" value="${configEmpresa.site || ''}"></div><div class="form-group full"><label>Endereço</label><textarea id="comp-end" rows="2">${configEmpresa.endereco || ''}</textarea></div><div class="form-group full"><label>Agradecimento</label><textarea id="comp-msg" rows="2">${configEmpresa.agradecimento || ''}</textarea></div></div><button style="width:100%;background:linear-gradient(135deg, var(--primary), var(--secondary));color:white;padding:15px;margin-top:15px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="saveCompany()">SALVAR</button></div>`;
+        }
+        window.previewLogo = (i) => { const r = new FileReader(); r.onload = (e) => { document.getElementById('logo-preview').src = e.target.result; }; r.readAsDataURL(i.files[0]); };
+        window.saveCompany = async () => { const data = { nome: document.getElementById('comp-nome').value, endereco: document.getElementById('comp-end').value, cnpj: document.getElementById('comp-cnpj').value, telefone: document.getElementById('comp-tel').value, site: document.getElementById('comp-site').value, agradecimento: document.getElementById('comp-msg').value, logo: document.getElementById('logo-preview').src, criadoEm: new Date() }; await setDoc(doc(db, "config", "empresa"), data); configEmpresa = data; alert("Salvo!"); };
+
+        // --- CONSTRUÇÃO OS ---
+        function startNewOS() {
+            editingId = null; // Reseta se for nova
+            osDraft = { cliente: null, fornecedor: configEmpresa.nome || 'DELÍCIAS DA KAH', itens: [], total: 0, desconto: 0 };
+            document.getElementById('header-btns').innerHTML = `<button onclick="saveOS()" style="background:var(--primary); color:white; border:none; padding:8px 12px; border-radius:10px; font-weight:bold; cursor:pointer; font-size:12px">SALVAR ENCOMENDA</button>`;
+            renderOSBuilder();
+        }
+
+        // Função separada para carregar a tela da Encomenda (Nova ou Edição)
+        function renderOSBuilder() {
+            document.getElementById('main-content').innerHTML = `<div style="background:#fff; padding:15px; border-radius:15px; border:1px solid var(--border-color);"><div class="os-builder-top"><div class="builder-header-btn" onclick="openSearch('fornecedores')" style="border:1px solid #fce4ec; padding:10px; border-radius:10px; cursor:pointer;"><i class="fa-solid fa-store" style="color:var(--primary)"></i> <div style="display:inline-block; vertical-align:middle; margin-left:10px;"><span style="font-size:10px;color:#999;display:block">PONTO DE VENDA</span><b id="txt-forn">${osDraft.fornecedor}</b></div></div><div class="builder-header-btn" onclick="openSearch('clientes')" style="border:1px solid #fce4ec; padding:10px; border-radius:10px; cursor:pointer;"><i class="fa-solid fa-heart" style="color:var(--secondary)"></i> <div style="display:inline-block; vertical-align:middle; margin-left:10px;"><span style="font-size:10px;color:#999;display:block">CLIENTE</span><b id="txt-cli">${osDraft.cliente || 'Selecionar...'}</b></div></div></div><div class="btn-action-grid"><button onclick="openSearch('produtos')" style="padding:10px; background:#fff5f7; color:var(--secondary); border:1px solid var(--secondary); border-radius:10px; cursor:pointer;"><i class="fa-solid fa-cake-candles"></i> Produtos</button><button onclick="openSearch('servicos')" style="padding:10px; background:#fff5f7; color:var(--secondary); border:1px solid var(--secondary); border-radius:10px; cursor:pointer;"><i class="fa-solid fa-wand-sparkles"></i> Serviços</button><button onclick="window.openWorkModal()" style="padding:10px; background:#fffbf0; color:var(--primary); border:1px solid var(--primary); border-radius:10px; cursor:pointer;"><i class="fa-solid fa-plus"></i> T. Avulso</button><button onclick="window.openDiscountModal()" style="padding:10px; background:#fff5f7; color:#d81b60; border:1px solid #d81b60; border-radius:10px; cursor:pointer;"><i class="fa-solid fa-tag"></i> Desconto</button></div><div class="table-responsive"><table class="os-table"><thead><tr><th>Descrição</th><th style="width:50px">Qtd</th><th style="width:80px">Total</th><th style="width:30px"></th></tr></thead><tbody id="draft-list"></tbody></table></div><div style="margin-top:15px; text-align:right; font-size:14px;"><div id="d-line" style="display:none; color:#d81b60; font-size:12px; margin-bottom:5px;">Desconto: - R$ <span id="txt-d">0.00</span></div><b style="color:var(--secondary); font-size:20px; font-family:'Playfair Display', serif;">TOTAL: R$ <span id="txt-total">0.00</span></b></div></div>`;
+            updateDraftUI();
+        }
+
+        // NOVA FUNÇÃO: Editar OS Existente
+        window.editOS = async (id) => {
+            const d = await getDoc(doc(db, "ordens_servicos", id));
+            osDraft = d.data();
+            editingId = id; // Define o ID para salvar como atualização e não nova
+            
+            document.getElementById('header-btns').innerHTML = `<button onclick="saveOS()" style="background:#4caf50; color:white; border:none; padding:8px 15px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-check"></i> ATUALIZAR</button>`;
+            
+            renderOSBuilder();
+            // Restaura o valor no input de desconto caso tenha
+            document.getElementById('d-val').value = osDraft.desconto || 0;
+        };
+
+        window.openDiscountModal = () => document.getElementById('modal-discount').style.display = 'flex';
+        window.openWorkModal = () => document.getElementById('modal-work').style.display = 'flex';
+        window.applyDiscount = () => { osDraft.desconto = parseFloat(document.getElementById('d-val').value || 0); updateDraftUI(); closeModal(); };
+        window.addManualWork = () => { const desc = document.getElementById('w-desc').value, val = parseFloat(document.getElementById('w-val').value || 0); if(!desc || !val) return alert("Preencha!"); osDraft.itens.push({ nome: desc, qty: 1, price: val, sub: val }); updateDraftUI(); closeModal(); };
+
+        function updateDraftUI() {
+            const container = document.getElementById('draft-list'); container.innerHTML = ""; let sum = 0;
+            osDraft.itens.forEach((i, idx) => { sum += i.sub; container.innerHTML += `<tr><td>${i.nome}</td><td>${i.qty}</td><td>${i.sub.toFixed(2)}</td><td><i class="fa-solid fa-trash" style="color:red; cursor:pointer; padding:5px;" onclick="removeItem(${idx})"></i></td></tr>`; });
+            osDraft.total = sum - osDraft.desconto; document.getElementById('txt-total').innerText = osDraft.total.toFixed(2);
+            if(osDraft.desconto > 0) { document.getElementById('d-line').style.display = 'block'; document.getElementById('txt-d').innerText = osDraft.desconto.toFixed(2); } else document.getElementById('d-line').style.display = 'none';
+        }
+
+        window.removeItem = (idx) => { osDraft.itens.splice(idx, 1); updateDraftUI(); };
+        
+        window.openSearch = async (col) => { 
+            const list = document.getElementById('m-list'); document.getElementById('modal-search').style.display = 'flex'; 
+            const snap = await getDocs(collection(db, col)); list.innerHTML = ""; 
+            snap.forEach(d => { 
+                const div = document.createElement('div'); div.className = 'os-card'; 
+                div.innerHTML = `<b>${d.data().nome || d.data().descricao}</b>`; 
+                div.onclick = () => { 
+                    if(['produtos','servicos'].includes(col)) { 
+                        tempItem = d.data(); document.getElementById('q-nome-item').innerText = tempItem.nome || tempItem.descricao; 
+                        document.getElementById('p-val').value = tempItem.valor || 0; document.getElementById('modal-qty').style.display = 'flex'; document.getElementById('modal-search').style.display = 'none'; 
+                    } else { 
+                        if(col === 'clientes') { osDraft.cliente = d.data().nome; document.getElementById('txt-cli').innerText = d.data().nome; } 
+                        else { osDraft.fornecedor = d.data().nome; document.getElementById('txt-forn').innerText = d.data().nome; } 
+                        closeModal(); 
+                    } 
+                }; 
+                list.appendChild(div); 
+            }); 
+        };
+
+        window.confirmItem = () => { 
+            const q = parseFloat(document.getElementById('q-val').value), p = parseFloat(document.getElementById('p-val').value); 
+            osDraft.itens.push({ nome: tempItem.nome || tempItem.descricao, qty: q, price: p, sub: q * p }); 
+            updateDraftUI(); closeModal(); 
+        };
+
+        window.saveOS = async () => { 
+            if(!osDraft.cliente) return alert("Selecione o cliente!"); 
+            
+            if (editingId) {
+                // Se já existir, a gente atualiza
+                await updateDoc(doc(db, "ordens_servicos", editingId), { ...osDraft, atualizadoEm: new Date() });
+                editingId = null; 
+            } else {
+                // Se for nova, a gente cria
+                const snap = await getDocs(collection(db, "ordens_servicos")), num = (snap.size + 1).toString().padStart(4, '0'); 
+                await addDoc(collection(db, "ordens_servicos"), { ...osDraft, numero: num, dataSimples: new Date().toLocaleDateString('pt-BR'), criadoEm: new Date(), pago: false }); 
+            }
+            setPage('Ordens de Serviços'); 
+        };
+
+        // --- MÓDULO ESTOQUE ---
+        window.startNewEstoque = () => { estoqueDraft = { itens: [], dataSimples: new Date().toLocaleDateString('pt-BR') }; window.renderEstoqueBuilder(); };
+        window.renderEstoqueBuilder = (id = null) => {
+            document.getElementById('header-btns').innerHTML = `<button onclick="window.saveEstoque('${id || ''}')" style="background:var(--secondary); color:white; border:none; padding:8px 12px; border-radius:10px; font-weight:bold; cursor:pointer; font-size:12px"><i class="fa-solid fa-save"></i> SALVAR ESTOQUE</button>`;
+            document.getElementById('main-content').innerHTML = `<div style="background:#fff; padding:15px; border-radius:15px; border:1px solid var(--border-color);"><div style="margin-bottom: 15px; color:var(--secondary); font-size:14px; border-bottom: 2px solid #fce4ec; padding-bottom: 10px;"><b><i class="fa-solid fa-calendar"></i> Data do Registro:</b> ${estoqueDraft.dataSimples}</div><div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items:flex-end;"><div class="form-group" style="flex: 1 1 100%; margin-bottom:0;"><label>Nome do Produto / Material</label><input type="text" id="est-nome" placeholder="Ex: Farinha..."></div><div style="display:flex; gap:10px; width: 100%;"><div class="form-group" style="flex:1; margin-bottom:0;"><label>Quantidade</label><input type="number" id="est-qtd" value="1" min="0"></div><button onclick="window.addEstoqueManual()" style="flex:2; height: 41px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; align-self: flex-end;">INCLUIR</button></div></div><div class="table-responsive"><table class="os-table"><thead><tr><th>Produto Listado</th><th style="width:60px; text-align:center">Qtd.</th><th style="width:40px; text-align:center">Excluir</th></tr></thead><tbody id="estoque-list"></tbody></table></div></div>`;
+            window.updateEstoqueUI();
+        };
+        window.addEstoqueManual = () => { const nome = document.getElementById('est-nome').value, qtd = parseFloat(document.getElementById('est-qtd').value) || 0; if(!nome.trim()) return alert("Digite o nome do produto!"); estoqueDraft.itens.push({ nome: nome, qty: qtd }); document.getElementById('est-nome').value = ''; document.getElementById('est-qtd').value = '1'; document.getElementById('est-nome').focus(); window.updateEstoqueUI(); };
+        window.updateEstoqueUI = () => { const container = document.getElementById('estoque-list'); container.innerHTML = ""; if(estoqueDraft.itens.length === 0) { container.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#999; padding:20px;">Nenhum item adicionado a este registro.</td></tr>`; return; } estoqueDraft.itens.forEach((i, idx) => { container.innerHTML += `<tr><td><b>${i.nome}</b></td><td style="text-align:center; width: 60px;"><input class="estoque-input-qtd" type="number" value="${i.qty}" onchange="window.updateEstoqueQty(${idx}, this.value)" style="width:100%; max-width:60px; padding:6px; text-align:center; border:1px solid #fce4ec; border-radius:10px; font-weight:bold; box-sizing:border-box;"></td><td style="text-align:center; width: 40px;"><button onclick="window.removeEstoqueItem(${idx})" style="background:none; border:none; color:red; cursor:pointer; padding:5px; font-size:16px; display:flex; justify-content:center; align-items:center; width:100%;"><i class="fa-solid fa-trash"></i></button></td></tr>`; }); };
+        window.updateEstoqueQty = (idx, val) => { estoqueDraft.itens[idx].qty = parseFloat(val) || 0; };
+        window.removeEstoqueItem = (idx) => { estoqueDraft.itens.splice(idx, 1); window.updateEstoqueUI(); };
+        window.saveEstoque = async (id) => { if(estoqueDraft.itens.length === 0) return alert("Adicione produtos antes de salvar."); const dataToSave = { ...estoqueDraft, atualizadoEm: new Date() }; if(id) { await updateDoc(doc(db, "estoques", id), dataToSave); } else { dataToSave.criadoEm = new Date(); await addDoc(collection(db, "estoques"), dataToSave); } setPage('Estoque'); };
+        window.viewEstoque = async (id) => { const d = await getDoc(doc(db, "estoques", id)); estoqueDraft = d.data(); window.renderEstoqueBuilder(id); };
+
+        // --- VISUALIZAR OS ---
+        window.shareOS = async (id) => { const d = await getDoc(doc(db, "ordens_servicos", id)), data = d.data(); let txt = `*Nº: ${data.numero}*\nCliente: ${data.cliente}\nTotal: R$ ${data.total.toFixed(2)}`; if (navigator.share) navigator.share({ title: `Resumo ${data.numero}`, text: txt }); else { navigator.clipboard.writeText(txt); alert("Copiado!"); } };
+        async function viewOSDetail(id) {
+            const d = await getDoc(doc(db, "ordens_servicos", id)), data = d.data();
+            
+            // Botão EDITAR adicionado aqui:
+            document.getElementById('header-btns').innerHTML = `<button onclick="window.editOS('${id}')" style="background:#4caf50;color:white;border:none;padding:8px;border-radius:10px;margin-right:5px;cursor:pointer;" title="Editar"><i class="fa-solid fa-pen"></i></button><button onclick="window.shareOS('${id}')" style="background:var(--primary);color:white;border:none;padding:8px;border-radius:10px;margin-right:5px;cursor:pointer;"><i class="fa-solid fa-share-nodes"></i></button><button onclick="window.print()" class="btn-print" style="background:var(--secondary);color:white;border:none;padding:8px;border-radius:10px;margin-right:5px;cursor:pointer;"><i class="fa-solid fa-print"></i></button><button onclick="setPage('Ordens de Serviços')" style="background:none;border:none;color:var(--secondary);font-size:24px;cursor:pointer;">&times;</button>`;
+            
+            const head = configEmpresa.logo ? `<div style="display:flex;justify-content:space-between;border-bottom:2px solid var(--secondary);padding-bottom:10px;margin-bottom:15px;"><img src="${configEmpresa.logo}" style="width:100px;height:auto;object-fit:contain; border-radius:10px"><div style="text-align:right;font-size:10px;"><b>${configEmpresa.nome}</b><br>${configEmpresa.endereco}<br>CNPJ: ${configEmpresa.cnpj} | Tel: ${configEmpresa.telefone}</div></div>` : '';
+            const sub = data.itens.reduce((acc, i) => acc + i.sub, 0);
+            document.getElementById('main-content').innerHTML = `<div class="os-view-container" style="background:white;padding:20px;border-radius:15px; border:1px solid var(--border-color)">${head}<div style="font-size:12px;margin-bottom:10px; color:var(--secondary)"><b>Nº: ${data.numero}</b> <span style="float:right">${data.dataSimples}</span></div><div style="background:#fff9fa;padding:10px;border-radius:10px;margin-bottom:10px;font-size:12px; border-left:4px solid var(--secondary)"><b>FORNECEDOR:</b> ${data.fornecedor}<br><b>CLIENTE:</b> ${data.cliente}</div><div class="table-responsive"><table class="os-table"><thead><tr><th>Descrição</th><th style="text-align:center">Qtd</th><th style="text-align:right">Total</th></tr></thead><tbody>${data.itens.map(i => `<tr><td>${i.nome}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">${i.sub.toFixed(2)}</td></tr>`).join('')}</tbody></table></div><div style="text-align:right;font-size:11px;margin-top:10px">Subtotal: R$ ${sub.toFixed(2)}</div>${data.desconto > 0 ? `<div style="text-align:right;font-size:11px;color:#d81b60">Desconto: - R$ ${data.desconto.toFixed(2)}</div>`:''}<div style="text-align:right;font-weight:bold;font-size:18px;color:var(--secondary);margin-top:5px; font-family:'Playfair Display', serif">TOTAL GERAL: R$ ${data.total.toFixed(2)}</div><div style="margin-top:30px;text-align:center;font-style:italic;font-size:10px;color:#8d6e63">${configEmpresa.agradecimento || 'Obrigado!'}</div></div>`;
+        }
+
+        // --- GESTÃO GENÉRICA ---
+        window.handleFab = () => { 
+            if(currentPg === 'Ordens de Serviços') startNewOS(); 
+            else if(currentPg === 'Estoque') window.startNewEstoque();
+            else if(currentPg === 'Usuários') window.newUserModal(); 
+            else window.openGenericModal(); 
+        };
+        
+        window.openGenericModal = (data = null, id = null) => { editingId = id; const isC = ['Clientes', 'Fornecedores'].includes(currentPg); document.getElementById('modal-generic').style.display = 'flex'; document.getElementById('modal-body-content').innerHTML = isC ? `<div class="form-grid"><div class="form-group full"><label>Nome</label><input type="text" id="g-nome" value="${data?.nome || ''}"></div><div class="form-group"><label>Telefone</label><input type="text" id="g-tel" value="${data?.telefone || ''}"></div><div class="form-group full"><label>Endereço</label><textarea id="g-end">${data?.endereco || ''}</textarea></div></div><button onclick="saveGeneric()" style="width:100%;padding:15px;background:var(--primary);color:white;border:none;border-radius:10px;margin-top:10px;font-weight:bold;cursor:pointer;">SALVAR</button>` : `<div class="form-group"><label>Descrição</label><input type="text" id="g-nome" value="${data?.nome || ''}"></div><div class="form-group"><label>Valor Unit.</label><input type="number" id="g-val" value="${data?.valor || ''}"></div><button onclick="saveGeneric()" style="width:100%;padding:15px;background:var(--primary);color:white;border:none;border-radius:10px;margin-top:10px;font-weight:bold;cursor:pointer;">SALVAR</button>`; };
+        window.saveGeneric = async () => { const data = { nome: document.getElementById('g-nome').value, criadoEm: new Date() }; if(['Clientes', 'Fornecedores'].includes(currentPg)) { data.telefone = document.getElementById('g-tel').value; data.endereco = document.getElementById('g-end').value; } else { data.valor = parseFloat(document.getElementById('g-val').value || 0); data.descricao = data.nome; } if(editingId) await updateDoc(doc(db, paths[currentPg], editingId), data); else await addDoc(collection(db, paths[currentPg]), data); closeModal(); };
+        window.editGeneric = async (col, id) => { const d = await getDoc(doc(db, col, id)); window.openGenericModal(d.data(), id); };
+        window.deleteDocGeneric = async (col, id) => { if(confirm("Tem certeza que deseja excluir?")) await deleteDoc(doc(db, col, id)); };
+        
+        // --- USUÁRIOS ---
+        window.newUserModal = () => { document.getElementById('modal-generic').style.display = 'flex'; document.getElementById('modal-body-content').innerHTML = `<div class="form-group"><label>Usuário</label><input type="text" id="u-name"></div><div class="form-group"><label>Senha</label><input type="password" id="u-pass"></div><button onclick="saveUser()" style="width:100%;background:var(--primary);color:white;border:none;padding:15px;border-radius:10px;margin-top:10px;font-weight:bold;cursor:pointer;">CADASTRAR</button>`; };
+        window.editUserModal = async (id, name) => { editingId = id; document.getElementById('modal-generic').style.display = 'flex'; document.getElementById('modal-body-content').innerHTML = `<div class="form-group"><label>Usuário</label><input type="text" id="u-name" value="${name}"></div><div class="form-group"><label>Nova Senha</label><input type="password" id="u-pass"></div><button onclick="saveUser()" style="width:100%;background:var(--secondary);color:white;border:none;padding:15px;border-radius:10px;margin-top:10px;font-weight:bold;cursor:pointer;">ATUALIZAR</button>`; };
+        window.saveUser = async () => { const u = document.getElementById('u-name').value, p = document.getElementById('u-pass').value, data = { username: u }; if(p) data.password = p; if(editingId) await updateDoc(doc(db, "usuarios", editingId), data); else { data.criadoEm = new Date(); await addDoc(collection(db, "usuarios"), data); } closeModal(); };
+
+        setPage('Ordens de Serviços');
+    </script>
+</body>
+</html>
